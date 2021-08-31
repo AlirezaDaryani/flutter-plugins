@@ -18,11 +18,23 @@ public class ForegroundService extends Service {
         super();
     }
 
+    Bundle bundle = new Bundle();
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         //get bundle of main intent of start action
-        startPluginForegroundService(intent.getExtras());
+        if (intent.getExtras() == null) {
+            if (bundle.get("title") == null) {
+                bundle.putAll(new Intent().putExtra("title", "MonsensoMonitor")
+                        .putExtra("text", "Monsenso Foreground Service")
+                        .putExtra("icon", R.drawable.common_full_open_on_phone)
+                        .putExtra("importance", 3)
+                        .putExtra("id", 10).getExtras());
+            }
+        } else {
+            bundle = intent.getExtras();
+        }
+        startPluginForegroundService(bundle);
         return START_STICKY;
     }
 
