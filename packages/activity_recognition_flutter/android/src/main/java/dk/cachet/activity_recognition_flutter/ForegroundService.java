@@ -4,9 +4,7 @@ import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.Service;
-import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -90,16 +88,16 @@ public class ForegroundService extends Service {
         /**
          * create pending intent for open app with click on foreground notification
          */
-        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-        stackBuilder.addNextIntent(new Intent(this, this.getPackageName().getClass()));
-        Intent resultIntent = new Intent(this, getMainActivityClass(this));
-        PendingIntent pendingIntentC = PendingIntent.getActivity(this, 66, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+//todo        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+//        stackBuilder.addNextIntent(new Intent(this, this.getPackageName().getClass()));
+//        Intent resultIntent = new Intent(this, getMainActivityClass(this));
+//        PendingIntent pendingIntentC = PendingIntent.getActivity(this, 66, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         // Make notification
         Notification notification = new Notification.Builder(context, "foreground.service.channel")
                 .setContentTitle((CharSequence) extras.get("title"))
                 .setContentText((CharSequence) extras.get("text"))
                 .setOngoing(true)
-                .setContentIntent(pendingIntentC)
+                //todo .setContentIntent(pendingIntentC)
                 .setSmallIcon(icon == 0 ? 17301514 : icon) // Default is the star icon
                 .build();
 
