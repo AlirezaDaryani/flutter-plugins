@@ -238,7 +238,7 @@ public class ActivityRecognitionFlutterPlugin implements FlutterPlugin, EventCha
                 .getString(DETECTED_ACTIVITY_CURRENT, "");
         Log.d("onSharedPreferenceChange", result);
         //todo compare new with latest and if there are different, show new one
-        if (last.equals("") || !result.equals(last)) {
+        if (!last.equals("") && !result.equals(last)) {
             Log.e(TAG, "onSharedPreferenceChanged: We will show this and save it again");
             sharedPreferences.edit().putString(DETECTED_ACTIVITY_CURRENT, result).apply();
         }
