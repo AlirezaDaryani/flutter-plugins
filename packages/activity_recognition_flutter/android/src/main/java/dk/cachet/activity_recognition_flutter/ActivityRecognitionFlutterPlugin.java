@@ -207,14 +207,18 @@ public class ActivityRecognitionFlutterPlugin implements FlutterPlugin, EventCha
         }
     }
 
-    void notifyNotification() {
+    private static int getDrawableResourceId(Context context, String name) {
+        return context.getResources().getIdentifier(name, "drawable", context.getPackageName());
+    }
+
+    void notifyNotification(boolean isStopped) {
         createNotificationChannel();
         Intent intent = getLaunchIntent(androidContext);
         intent.setAction("SELECT_NOTIFICATION");
-        intent.putExtra("payload", "STOPPED");//MOVING
+        intent.putExtra("payload", isStopped ? "STOPPED" : "MOVING");
         PendingIntent pendingIntent = PendingIntent.getActivity(androidContext, 909090, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(androidContext, "notipark_channel")
-                .setSmallIcon(R.drawable.common_full_open_on_phone)
+                .setSmallIcon(getDrawableResourceId(androidContext, "app_icon"))
                 .setContentTitle("Check app")
                 .setContentText("we detect new changes")
                 .setContentIntent(pendingIntent)
@@ -227,6 +231,20 @@ public class ActivityRecognitionFlutterPlugin implements FlutterPlugin, EventCha
 
     }
 
+    void sendMessage(String data) {
+        String[] tokens = data.split(",");
+        if (tokens.length == 2) {
+            if (tokens[0].equals("WALKING") || tokens[0].equals("ON_FOOT")) {
+                notifyNotification(true);
+            } else if (tokens[0].equals("TILTING") || tokens[0].equals("STILL")) {
+                notifyNotification(false);
+            }
+        }
+
+
+    }
+
+
     /**
      * Shared preferences changed, i.e. latest activity
      */
@@ -237,18 +255,19 @@ public class ActivityRecognitionFlutterPlugin implements FlutterPlugin, EventCha
         String last = sharedPreferences
                 .getString(DETECTED_ACTIVITY_CURRENT, "");
         Log.d("onSharedPreferenceChange", result);
-        Log.e(TAG, "onSharedPreferenceChanged: " + result);
-        Log.e(TAG, "onSharedPreferenceChanged: " + last);
-
-        //todo compare new with latest and if there are different, show new one
-        if (last.equals("") || !result.equals(last)) {
-            Log.e(TAG, "onSharedPreferenceChanged: We will show this and save it again");
-            sharedPreferences.edit().putString(DETECTED_ACTIVITY_CURRENT, result).apply();
-        }
+//        Log.e(TAG, "onSharedPreferenceChanged: " + result);
+//        Log.e(TAG, "onSharedPreferenceChanged: " + last);
+//
+//        //todo compare new with latest and if there are different, show new one
+//        if (last.equals("") || !result.equals(last)) {
+//            Log.e(TAG, "onSharedPreferenceChanged: We will show this and save it again");
+//            sharedPreferences.edit().putString(DETECTED_ACTIVITY_CURRENT, result).apply();
+//        }
         if (key != null && key.equals(DETECTED_ACTIVITY)) {
             Log.d(TAG, "Detected activity: " + result);
             try {
-                eventSink.success(result);
+                //eventSink.success(result);
+                sendMessage(result);
             } catch (Exception e) {
                 Log.e(TAG, "onSharedPreferenceChanged: ", e);
             }
