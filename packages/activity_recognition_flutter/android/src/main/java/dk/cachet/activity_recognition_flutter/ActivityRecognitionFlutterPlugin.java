@@ -2,15 +2,20 @@ package dk.cachet.activity_recognition_flutter;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
 import com.google.android.gms.location.ActivityRecognition;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -138,9 +143,10 @@ public class ActivityRecognitionFlutterPlugin implements FlutterPlugin, EventCha
         androidContext.startForegroundService(intent);
     }
 
-    @Override
-    public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
-        channel.setStreamHandler(null);
+    private static Intent getLaunchIntent(Context context) {
+        String packageName = context.getPackageName();
+        PackageManager packageManager = context.getPackageManager();
+        return packageManager.getLaunchIntentForPackage(packageName);
     }
 
     @Override
@@ -162,9 +168,8 @@ public class ActivityRecognitionFlutterPlugin implements FlutterPlugin, EventCha
     }
 
     @Override
-    public void onDetachedFromActivityForConfigChanges() {
-        androidActivity = null;
-        androidContext = null;
+    public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
+        //channel.setStreamHandler(null);
     }
 
     @Override
@@ -175,9 +180,51 @@ public class ActivityRecognitionFlutterPlugin implements FlutterPlugin, EventCha
     }
 
     @Override
+    public void onDetachedFromActivityForConfigChanges() {
+        //androidActivity = null;
+        //androidContext = null;
+    }
+
+    @Override
     public void onDetachedFromActivity() {
-        androidActivity = null;
-        androidContext = null;
+        //androidActivity = null;
+        //androidContext = null;
+    }
+
+    private void createNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = "NotiPark";
+            String description = "NotiPark Reminders";
+            int importance = NotificationManager.IMPORTANCE_HIGH;
+            NotificationChannel channel = new NotificationChannel("notipark_channel", name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager = androidContext.getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
+
+    void notifyNotification() {
+        createNotificationChannel();
+        Intent intent = getLaunchIntent(androidContext);
+        intent.setAction("SELECT_NOTIFICATION");
+        intent.putExtra("payload", "STOPPED");//MOVING
+        PendingIntent pendingIntent = PendingIntent.getActivity(androidContext, 909090, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(androidContext, "notipark_channel")
+                .setSmallIcon(R.drawable.common_full_open_on_phone)
+                .setContentTitle("Check app")
+                .setContentText("we detect new changes")
+                .setContentIntent(pendingIntent)
+                .setPriority(NotificationCompat.PRIORITY_MAX);
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(androidContext);
+
+// notificationId is a unique int for each notification that you must define
+        notificationManager.notify(909090, builder.build());
+
+
     }
 
     /**

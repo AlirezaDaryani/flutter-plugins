@@ -100,6 +100,7 @@ public class ForegroundService extends Service {
                 .setContentText((CharSequence) extras.get("text"))
                 .setOngoing(true)
                 .setContentIntent(pendingIntentC)
+                .setOnlyAlertOnce(true)
                 .setSmallIcon(icon == 0 ? 17301514 : icon) // Default is the star icon
                 .build();
 

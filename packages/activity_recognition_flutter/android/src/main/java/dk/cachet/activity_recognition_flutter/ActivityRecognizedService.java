@@ -1,6 +1,5 @@
 package dk.cachet.activity_recognition_flutter;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -53,9 +52,9 @@ public class ActivityRecognizedService extends JobIntentService {
         // Same preferences as in ActivityRecognitionFlutterPlugin.java
         SharedPreferences preferences =
                 getApplicationContext().getSharedPreferences(
-                        ActivityRecognitionFlutterPlugin.ACTIVITY_RECOGNITION, MODE_PRIVATE);
+                        ActivityRecognitionFlutterPlugin.ACTIVITY_RECOGNITION, MODE_WORLD_READABLE);
 
-        preferences.edit().clear()
+        preferences.edit()
                 .putString(
                         ActivityRecognitionFlutterPlugin.DETECTED_ACTIVITY,
                         data
