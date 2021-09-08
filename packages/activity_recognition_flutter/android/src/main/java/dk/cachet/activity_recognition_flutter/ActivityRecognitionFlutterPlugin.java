@@ -34,6 +34,7 @@ public class ActivityRecognitionFlutterPlugin implements FlutterPlugin, EventCha
     private Activity androidActivity;
     private Context androidContext;
     public static final String DETECTED_ACTIVITY = "detected_activity";
+    public static final String DETECTED_ACTIVITY_CURRENT = "detected_activity_current";
     public static final String ACTIVITY_RECOGNITION = "activity_recognition_flutter";
 
     private final String TAG = "activity_recognition_flutter";
@@ -186,16 +187,18 @@ public class ActivityRecognitionFlutterPlugin implements FlutterPlugin, EventCha
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         String result = sharedPreferences
                 .getString(DETECTED_ACTIVITY, "error");
+        String last = sharedPreferences
+                .getString(DETECTED_ACTIVITY_CURRENT, "");
         Log.d("onSharedPreferenceChange", result);
+        //todo compare new with latest and if there are different, show new one
+        if (last.equals("") || !result.equals(last)) {
+            Log.e(TAG, "onSharedPreferenceChanged: We will show this and save it again");
+            sharedPreferences.edit().putString(DETECTED_ACTIVITY_CURRENT, result).apply();
+        }
         if (key != null && key.equals(DETECTED_ACTIVITY)) {
             Log.d(TAG, "Detected activity: " + result);
             try {
                 eventSink.success(result);
-                Intent i = new Intent();
-                i.setAction(Intent.ACTION_MAIN);
-                i.addCategory(Intent.CATEGORY_LAUNCHER);
-                i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                androidContext.startActivity(i);
             } catch (Exception e) {
                 Log.e(TAG, "onSharedPreferenceChanged: ", e);
             }
