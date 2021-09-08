@@ -29,6 +29,19 @@ public class ActivityRecognizedService extends JobIntentService {
         onHandleIntent(intent);
     }
 
+    public static String getActivityString(int type) {
+        if (type == DetectedActivity.IN_VEHICLE) return "IN_VEHICLE";
+        if (type == DetectedActivity.ON_BICYCLE) return "IN_VEHICLE";
+        if (type == DetectedActivity.ON_FOOT) return "STILL";
+        if (type == DetectedActivity.RUNNING) return "STILL";
+        if (type == DetectedActivity.STILL) return "STILL";
+        if (type == DetectedActivity.TILTING) return "STILL";
+        if (type == DetectedActivity.WALKING) return "STILL";
+
+        // Default case
+        return "UNKNOWN";
+    }
+
     // remove override and make onHandleIntent private.
     private void onHandleIntent(@Nullable Intent intent) {
         ActivityRecognitionResult result = ActivityRecognitionResult.extractResult(intent);
@@ -45,7 +58,7 @@ public class ActivityRecognizedService extends JobIntentService {
         String type = getActivityString(mostLikely.getType());
         int confidence = mostLikely.getConfidence();
 
-        String data = type + "," + confidence;
+        String data = type + "," + "100";
 
         Log.d("onHandleIntent", data);
 
@@ -60,19 +73,6 @@ public class ActivityRecognizedService extends JobIntentService {
                         data
                 )
                 .apply();
-    }
-
-    public static String getActivityString(int type) {
-        if (type == DetectedActivity.IN_VEHICLE) return "IN_VEHICLE";
-        if (type == DetectedActivity.ON_BICYCLE) return "ON_BICYCLE";
-        if (type == DetectedActivity.ON_FOOT) return "ON_FOOT";
-        if (type == DetectedActivity.RUNNING) return "RUNNING";
-        if (type == DetectedActivity.STILL) return "STILL";
-        if (type == DetectedActivity.TILTING) return "TILTING";
-        if (type == DetectedActivity.WALKING) return "WALKING";
-
-        // Default case
-        return "UNKNOWN";
     }
 }
 

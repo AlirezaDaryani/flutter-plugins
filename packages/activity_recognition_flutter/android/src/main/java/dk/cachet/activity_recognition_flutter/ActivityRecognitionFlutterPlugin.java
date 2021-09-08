@@ -219,9 +219,10 @@ public class ActivityRecognitionFlutterPlugin implements FlutterPlugin, EventCha
         PendingIntent pendingIntent = PendingIntent.getActivity(androidContext, 909090, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(androidContext, "notipark_channel")
                 .setSmallIcon(getDrawableResourceId(androidContext, "app_icon"))
-                .setContentTitle("Check app")
-                .setContentText("we detect new changes")
+                .setContentTitle("Parking")
+                .setContentText(isStopped ? "You just stopped" : "You start moving")
                 .setContentIntent(pendingIntent)
+                .setAutoCancel(true)
                 .setPriority(NotificationCompat.PRIORITY_MAX);
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(androidContext);
 
@@ -233,10 +234,11 @@ public class ActivityRecognitionFlutterPlugin implements FlutterPlugin, EventCha
 
     void sendMessage(String data) {
         String[] tokens = data.split(",");
+        //todo now work for walk and stop
         if (tokens.length == 2) {
-            if (tokens[0].equals("WALKING") || tokens[0].equals("ON_FOOT")) {
+            if (tokens[0].equals("STILL")) {
                 notifyNotification(true);
-            } else if (tokens[0].equals("TILTING") || tokens[0].equals("STILL")) {
+            } else if (tokens[0].equals("IN_VEHICLE")) {
                 notifyNotification(false);
             }
         }
@@ -252,8 +254,8 @@ public class ActivityRecognitionFlutterPlugin implements FlutterPlugin, EventCha
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         String result = sharedPreferences
                 .getString(DETECTED_ACTIVITY, "error");
-        String last = sharedPreferences
-                .getString(DETECTED_ACTIVITY_CURRENT, "");
+        //String last = sharedPreferences
+        //.getString(DETECTED_ACTIVITY_CURRENT, "");
         Log.d("onSharedPreferenceChange", result);
 //        Log.e(TAG, "onSharedPreferenceChanged: " + result);
 //        Log.e(TAG, "onSharedPreferenceChanged: " + last);
