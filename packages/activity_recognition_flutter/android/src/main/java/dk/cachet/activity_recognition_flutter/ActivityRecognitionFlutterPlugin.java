@@ -139,7 +139,7 @@ public class ActivityRecognitionFlutterPlugin implements FlutterPlugin, EventCha
 
     @Override
     public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
-        //todo channel.setStreamHandler(null);
+        channel.setStreamHandler(null);
     }
 
     @Override
@@ -187,17 +187,16 @@ public class ActivityRecognitionFlutterPlugin implements FlutterPlugin, EventCha
         String result = sharedPreferences
                 .getString(DETECTED_ACTIVITY, "error");
         Log.d("onSharedPreferenceChange", result);
-        //
-        Log.e("onSharedPreferenceChange", result);
         if (key != null && key.equals(DETECTED_ACTIVITY)) {
             Log.d(TAG, "Detected activity: " + result);
-            //
-            Log.e(TAG, "Detected activity:2 " + result);
-            //todo notify user to open app
             try {
                 eventSink.success(result);
+                Intent i = new Intent();
+                i.setAction(Intent.ACTION_MAIN);
+                i.addCategory(Intent.CATEGORY_HOME);
+                androidContext.startActivity(i);
             } catch (Exception e) {
-                Log.e(TAG, "onSharedPreferenceChanged: XXXXXX", e);
+                Log.e(TAG, "onSharedPreferenceChanged: ", e);
             }
         }
     }
