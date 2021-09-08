@@ -193,7 +193,8 @@ public class ActivityRecognitionFlutterPlugin implements FlutterPlugin, EventCha
                 eventSink.success(result);
                 Intent i = new Intent();
                 i.setAction(Intent.ACTION_MAIN);
-                i.addCategory(Intent.CATEGORY_HOME);
+                i.addCategory(Intent.CATEGORY_LAUNCHER);
+                i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 androidContext.startActivity(i);
             } catch (Exception e) {
                 Log.e(TAG, "onSharedPreferenceChanged: ", e);
