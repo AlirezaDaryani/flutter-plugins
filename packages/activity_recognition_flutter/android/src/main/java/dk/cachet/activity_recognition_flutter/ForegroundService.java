@@ -80,8 +80,8 @@ public class ForegroundService extends Service {
         }
 
         // Create notification channel
-        NotificationChannel channel = new NotificationChannel("foreground.service.channel", "Background Services", importance);
-        channel.setDescription("Enables background processing.");
+        NotificationChannel channel = new NotificationChannel("notipark_channel", "NotiPark", importance);
+        channel.setDescription("NotiPark Reminders.");
         getSystemService(NotificationManager.class).createNotificationChannel(channel);
 
         // Get notification icon
@@ -95,13 +95,13 @@ public class ForegroundService extends Service {
         Intent resultIntent = new Intent(this, getMainActivityClass(this));
         PendingIntent pendingIntentC = PendingIntent.getActivity(this, 66, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         // Make notification
-        Notification notification = new Notification.Builder(context, "foreground.service.channel")
+        Notification notification = new Notification.Builder(context, "notipark_channel")
                 .setContentTitle((CharSequence) extras.get("title"))
                 .setContentText((CharSequence) extras.get("text"))
                 .setOngoing(true)
                 .setContentIntent(pendingIntentC)
                 .setOnlyAlertOnce(true)
-                .setSmallIcon(icon == 0 ? 17301514 : icon) // Default is the star icon
+                .setSmallIcon(icon) // Default is the star icon
                 .build();
 
         // Get notification ID
