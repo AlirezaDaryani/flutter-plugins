@@ -1,18 +1,36 @@
 import Flutter
 import UIKit
 import CoreMotion
+import CoreLocation
 
 
 public class SwiftActivityRecognitionFlutterPlugin: NSObject, FlutterPlugin {
 
     public var globalChannel:FlutterMethodChannel
     private let activityManager = CMMotionActivityManager()
+    var locationManager : CLLocationManager!
 
+    
+    var backgroundTask: UIBackgroundTaskIdentifier = .invalid
+
+   func registerBackgroundTask() {
+     backgroundTask = UIApplication.shared.beginBackgroundTask { [weak self] in
+       self?.endBackgroundTask()
+     }
+     assert(backgroundTask != .invalid)
+   }
+     
+   func endBackgroundTask() {
+     UIApplication.shared.endBackgroundTask(backgroundTask)
+     backgroundTask = .invalid
+   }
+    
     init(channel:FlutterMethodChannel) {
         self.globalChannel = channel
         
 
     }
+    
 
   public static func register(with registrar: FlutterPluginRegistrar) {
     //let handler = ActivityStreamHandler()
@@ -28,7 +46,12 @@ public class SwiftActivityRecognitionFlutterPlugin: NSObject, FlutterPlugin {
       if (call.method == "getPlatformVersion") {
           result("iOS " + UIDevice.current.systemVersion)
       }else if (call.method == "start"){
-        activityManager.startActivityUpdates(to: OperationQueue.main) { (activity) in
+        self.registerBackgroundTask()
+        self.locationManager.requestAlwaysAuthorization()
+        self.locationManager.allowsBackgroundLocationUpdates = true
+        self.locationManager.startMonitoringSignificantLocationChanges()
+        
+        activityManager.startActivityUpdates(to: OperationQueue.init()) { (activity) in
             if let a = activity {
 
                 let type = self.extractActivityType(a: a)
