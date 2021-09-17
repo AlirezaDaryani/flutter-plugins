@@ -20,7 +20,18 @@ class ActivityRecognition {
   static ActivityRecognition get instance => _instance;
 
   static const EventChannel _eventChannel =
-  const EventChannel('activity_recognition_flutter');
+      const EventChannel('activity_recognition_flutter');
+
+  static const MethodChannel _channel =
+      const MethodChannel('activity_recognition_flutter_ios');
+
+  static void startIOS() {
+    _channel.invokeMethod('start');
+  }
+
+  static void getDataIOS(Future handler(MethodCall call)) {
+    _channel.setMethodCallHandler(handler);
+  }
 
   /// Requests continuous [ActivityEvent] updates.
   ///
