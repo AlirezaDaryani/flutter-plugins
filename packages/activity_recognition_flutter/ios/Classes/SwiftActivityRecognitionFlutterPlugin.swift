@@ -8,7 +8,7 @@ public class SwiftActivityRecognitionFlutterPlugin: NSObject, FlutterPlugin {
 
     public var globalChannel:FlutterMethodChannel
     private let activityManager = CMMotionActivityManager()
-    var locationManager : CLLocationManager!
+    let locationManager = CLLocationManager()
 
     
     var backgroundTask: UIBackgroundTaskIdentifier = .invalid
