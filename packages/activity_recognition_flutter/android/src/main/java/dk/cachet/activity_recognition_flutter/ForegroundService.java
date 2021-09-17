@@ -80,7 +80,7 @@ public class ForegroundService extends Service {
         }
 
         // Create notification channel
-        NotificationChannel channel = new NotificationChannel("notipark_channel", "NotiPark", importance);
+        NotificationChannel channel = new NotificationChannel("notipark_service_channel", "NotiPark Service", importance);
         channel.setDescription("NotiPark Reminders.");
         getSystemService(NotificationManager.class).createNotificationChannel(channel);
 
@@ -95,7 +95,7 @@ public class ForegroundService extends Service {
         Intent resultIntent = new Intent(this, getMainActivityClass(this));
         PendingIntent pendingIntentC = PendingIntent.getActivity(this, 66, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         // Make notification
-        Notification notification = new Notification.Builder(context, "notipark_channel")
+        Notification notification = new Notification.Builder(context, "notipark_service_channel")
                 .setContentTitle((CharSequence) extras.get("title"))
                 .setContentText((CharSequence) extras.get("text"))
                 .setOngoing(true)
