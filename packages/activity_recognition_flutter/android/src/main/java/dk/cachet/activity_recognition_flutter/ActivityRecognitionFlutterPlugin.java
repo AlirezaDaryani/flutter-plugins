@@ -44,6 +44,7 @@ public class ActivityRecognitionFlutterPlugin implements FlutterPlugin, MethodCh
    public static final String ACTIVITY_RECOGNITION = "activity_recognition_flutter";
 
     private final String TAG = "activity_recognition_flutter";
+    private final String TAG2 = "ALIREZA";
 
     /**
      * The main function for starting activity tracking.
@@ -253,8 +254,10 @@ public class ActivityRecognitionFlutterPlugin implements FlutterPlugin, MethodCh
     }
     @Override
     public void onMethodCall(@NonNull  MethodCall call, @NonNull MethodChannel.Result result) {
-        if(call.method == "start_android"){
+        if (call.method.equals("start_android")) {
+
             HashMap<String, Object> args = (HashMap<String, Object>) call.arguments;
+
             /**
              {
              "foreground":true,
@@ -263,6 +266,7 @@ public class ActivityRecognitionFlutterPlugin implements FlutterPlugin, MethodCh
              "detection_frequency":10 //in seconds
              }
              */
+            Log.e(TAG2, "args: " + args);
             Log.d(TAG, "args: " + args);
             boolean fg = false;
             if (args.get("foreground") != null) {
@@ -289,6 +293,7 @@ public class ActivityRecognitionFlutterPlugin implements FlutterPlugin, MethodCh
 
 
             startActivityTracking(appFrequency);
+            result.success(true);
         }
     }
 
@@ -300,17 +305,8 @@ public class ActivityRecognitionFlutterPlugin implements FlutterPlugin, MethodCh
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         String result = sharedPreferences
                 .getString(DETECTED_ACTIVITY, "error");
-        //String last = sharedPreferences
-        //.getString(DETECTED_ACTIVITY_CURRENT, "");
         Log.d("onSharedPreferenceChange", result);
-//        Log.e(TAG, "onSharedPreferenceChanged: " + result);
-//        Log.e(TAG, "onSharedPreferenceChanged: " + last);
-//
-//        //todo compare new with latest and if there are different, show new one
-//        if (last.equals("") || !result.equals(last)) {
-//            Log.e(TAG, "onSharedPreferenceChanged: We will show this and save it again");
-//            sharedPreferences.edit().putString(DETECTED_ACTIVITY_CURRENT, result).apply();
-//        }
+
         if (key != null && key.equals(DETECTED_ACTIVITY)) {
             Log.d(TAG, "Detected activity: " + result);
             try {
