@@ -36,7 +36,7 @@ class ActivityRecognition {
       String? notificationTitle,
       String? notificationDescription,
       int? detectionFrequency}) {
-    _channel.invokeMethod('start_android', {
+    _channelAndroid.invokeMethod('start_android', {
       "foreground": runForegroundService,
       "notification_title": notificationTitle,
       "notification_desc": notificationDescription,
