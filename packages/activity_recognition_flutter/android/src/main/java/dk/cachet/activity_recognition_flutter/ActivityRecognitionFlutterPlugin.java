@@ -13,7 +13,6 @@ import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
@@ -27,7 +26,6 @@ import java.util.HashMap;
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.embedding.engine.plugins.activity.ActivityAware;
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
-import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 
@@ -170,7 +168,7 @@ public class ActivityRecognitionFlutterPlugin implements FlutterPlugin, MethodCh
         androidActivity = binding.getActivity();
         androidContext = binding.getActivity().getApplicationContext();
 
-        SharedPreferences prefs = androidContext.getSharedPreferences(ACTIVITY_RECOGNITION, Context.MODE_WORLD_READABLE);
+        SharedPreferences prefs = androidContext.getSharedPreferences(ACTIVITY_RECOGNITION, Context.MODE_PRIVATE);
         prefs.registerOnSharedPreferenceChangeListener(this);
         Log.d(TAG, "onAttachedToActivity");
     }
