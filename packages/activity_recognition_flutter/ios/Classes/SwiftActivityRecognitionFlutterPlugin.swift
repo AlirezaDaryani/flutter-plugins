@@ -4,7 +4,7 @@ import CoreMotion
 import CoreLocation
 
 
-public class SwiftActivityRecognitionFlutterPlugin: NSObject, FlutterPlugin {
+public class SwiftActivityRecognitionFlutterPlugin: NSObject, FlutterPlugin,CLLocationManagerDelegate {
 
     public var globalChannel:FlutterMethodChannel
     private let activityManager = CMMotionActivityManager()
@@ -46,12 +46,18 @@ public class SwiftActivityRecognitionFlutterPlugin: NSObject, FlutterPlugin {
       if (call.method == "getPlatformVersion") {
           result("iOS " + UIDevice.current.systemVersion)
       }else if (call.method == "start"){
-        self.registerBackgroundTask()
+        self.locationManager.delegate = self
+        self.locationManager.requestWhenInUseAuthorization()
         self.locationManager.requestAlwaysAuthorization()
         self.locationManager.allowsBackgroundLocationUpdates = true
+        //TODO self.locationManager.pausesLocationUpdatesAutomatically = true
+        self.locationManager.startMonitoringVisits()
         self.locationManager.startMonitoringSignificantLocationChanges()
-        
-        activityManager.startActivityUpdates(to: OperationQueue.init()) { (activity) in
+        self.locationManager.activityType = .fitness
+        self.locationManager.startUpdatingLocation()
+        self.registerBackgroundTask()
+
+        activityManager.startActivityUpdates(to: OperationQueue.main) { (activity) in
             if let a = activity {
 
                 let type = self.extractActivityType(a: a)
@@ -66,6 +72,25 @@ public class SwiftActivityRecognitionFlutterPlugin: NSObject, FlutterPlugin {
         }
       }
     }
+    
+    public func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        
+        
+        activityManager.startActivityUpdates(to: OperationQueue.main) { (activity) in
+            if let a = activity {
+
+                let type = self.extractActivityType(a: a)
+                let confidence = self.extractActivityConfidence(a: a)
+                let data = "\(type),\(confidence)"
+
+                /// Send event to flutter
+                self.globalChannel.invokeMethod("g_data", arguments: data)
+
+                
+            }
+        }
+    }
+    
     
 
     
