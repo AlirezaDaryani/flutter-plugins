@@ -47,15 +47,16 @@ public class SwiftActivityRecognitionFlutterPlugin: NSObject, FlutterPlugin,CLLo
           result("iOS " + UIDevice.current.systemVersion)
       }else if (call.method == "start"){
         self.locationManager.delegate = self
+        self.registerBackgroundTask()
         self.locationManager.requestWhenInUseAuthorization()
         self.locationManager.requestAlwaysAuthorization()
         self.locationManager.allowsBackgroundLocationUpdates = true
         //TODO self.locationManager.pausesLocationUpdatesAutomatically = true
         self.locationManager.startMonitoringVisits()
         self.locationManager.startMonitoringSignificantLocationChanges()
-        self.locationManager.activityType = .fitness
+        self.locationManager.activityType = .automotiveNavigation
+        self.locationManager.pausesLocationUpdatesAutomatically = false
         self.locationManager.startUpdatingLocation()
-        self.registerBackgroundTask()
 
         activityManager.startActivityUpdates(to: OperationQueue.main) { (activity) in
             if let a = activity {
