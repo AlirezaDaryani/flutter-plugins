@@ -10,7 +10,8 @@ public class SwiftActivityRecognitionFlutterPlugin: NSObject, FlutterPlugin,CLLo
     private let activityManager = CMMotionActivityManager()
     let locationManager = CLLocationManager()
 
-    
+    private var requestLocationAuthorizationCallback: ((CLAuthorizationStatus) -> Void)?
+
     var backgroundTask: UIBackgroundTaskIdentifier = .invalid
 
    func registerBackgroundTask() {
@@ -48,14 +49,13 @@ public class SwiftActivityRecognitionFlutterPlugin: NSObject, FlutterPlugin,CLLo
       }else if (call.method == "start"){
         self.locationManager.delegate = self
         self.registerBackgroundTask()
-        self.locationManager.requestWhenInUseAuthorization()
-        self.locationManager.requestAlwaysAuthorization()
+        self.requestLocationAuthorization()
         self.locationManager.allowsBackgroundLocationUpdates = true
+        self.locationManager.pausesLocationUpdatesAutomatically = false
         //TODO self.locationManager.pausesLocationUpdatesAutomatically = true
         self.locationManager.startMonitoringVisits()
         self.locationManager.startMonitoringSignificantLocationChanges()
-        self.locationManager.activityType = .automotiveNavigation
-        self.locationManager.pausesLocationUpdatesAutomatically = false
+        //self.locationManager.activityType = .automotiveNavigation
         self.locationManager.startUpdatingLocation()
 
         activityManager.startActivityUpdates(to: OperationQueue.main) { (activity) in
@@ -72,6 +72,27 @@ public class SwiftActivityRecognitionFlutterPlugin: NSObject, FlutterPlugin,CLLo
             }
         }
       }
+    }
+    
+    public func requestLocationAuthorization() {
+        let currentStatus = CLLocationManager.authorizationStatus()
+
+        // Only ask authorization if it was never asked before
+        guard currentStatus == .notDetermined else { return }
+
+        // Starting on iOS 13.4.0, to get .authorizedAlways permission, you need to
+        // first ask for WhenInUse permission, then ask for Always permission to
+        // get to a second system alert
+        if #available(iOS 13.4, *) {
+            self.requestLocationAuthorizationCallback = { status in
+                if status == .authorizedWhenInUse {
+                    self.locationManager.requestAlwaysAuthorization()
+                }
+            }
+            self.locationManager.requestWhenInUseAuthorization()
+        } else {
+            self.locationManager.requestAlwaysAuthorization()
+        }
     }
     
     public func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
@@ -93,6 +114,50 @@ public class SwiftActivityRecognitionFlutterPlugin: NSObject, FlutterPlugin,CLLo
     }
     
     
+    // MARK: - CLLocationManagerDelegate
+    public func locationManager(_ manager: CLLocationManager,
+                                didChangeAuthorization status: CLAuthorizationStatus) {
+        self.requestLocationAuthorizationCallback?(status)
+    }
+    
+    public func locationManagerDidPauseLocationUpdates(_ manager: CLLocationManager) {
+        self.locationManager.startMonitoringVisits()
+        self.locationManager.startMonitoringSignificantLocationChanges()
+        self.locationManager.startUpdatingLocation()
+
+        activityManager.startActivityUpdates(to: OperationQueue.main) { (activity) in
+            if let a = activity {
+
+                let type = self.extractActivityType(a: a)
+                let confidence = self.extractActivityConfidence(a: a)
+                let data = "\(type),\(confidence)"
+
+                /// Send event to flutter
+                self.globalChannel.invokeMethod("g_data", arguments: data)
+
+                
+            }
+        }
+    }
+    public func locationManagerDidResumeLocationUpdates(_ manager: CLLocationManager) {
+        self.locationManager.startMonitoringVisits()
+        self.locationManager.startMonitoringSignificantLocationChanges()
+        self.locationManager.startUpdatingLocation()
+
+        activityManager.startActivityUpdates(to: OperationQueue.main) { (activity) in
+            if let a = activity {
+
+                let type = self.extractActivityType(a: a)
+                let confidence = self.extractActivityConfidence(a: a)
+                let data = "\(type),\(confidence)"
+
+                /// Send event to flutter
+                self.globalChannel.invokeMethod("g_data", arguments: data)
+
+                
+            }
+        }
+    }
 
     
     
