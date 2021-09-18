@@ -31,8 +31,17 @@ class ActivityRecognition {
     _channel.invokeMethod('start');
   }
 
-  static void startAndroid() {
-    _channel.invokeMethod('start_android');
+  static void startAndroid(
+      {bool runForegroundService = true,
+      String? notificationTitle,
+      String? notificationDescription,
+      int? detectionFrequency}) {
+    _channel.invokeMethod('start_android', {
+      "foreground": runForegroundService,
+      "notification_title": notificationTitle,
+      "notification_desc": notificationDescription,
+      "detection_frequency": detectionFrequency
+    });
   }
 
   static void getDataIOS(Future handler(MethodCall call)) {
