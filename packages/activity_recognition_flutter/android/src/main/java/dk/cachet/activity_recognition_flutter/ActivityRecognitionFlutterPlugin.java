@@ -28,6 +28,7 @@ import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.embedding.engine.plugins.activity.ActivityAware;
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
 import io.flutter.plugin.common.EventChannel;
+import io.flutter.plugin.common.MethodChannel;
 
 /**
  * ActivityRecognitionFlutterPlugin
@@ -35,6 +36,7 @@ import io.flutter.plugin.common.EventChannel;
 @SuppressLint("LongLogTag")
 public class ActivityRecognitionFlutterPlugin implements FlutterPlugin, EventChannel.StreamHandler, ActivityAware, SharedPreferences.OnSharedPreferenceChangeListener {
     private EventChannel channel;
+    private MethodChannel methodChannel;
     private EventChannel.EventSink eventSink;
     private Activity androidActivity;
     private Context androidContext;
@@ -79,6 +81,8 @@ public class ActivityRecognitionFlutterPlugin implements FlutterPlugin, EventCha
     @Override
     public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
         channel = new EventChannel(flutterPluginBinding.getBinaryMessenger(), ACTIVITY_RECOGNITION);
+        methodChannel = new MethodChannel(flutterPluginBinding.getBinaryMessenger(),"activity_recognition_flutter_android");
+        //methodChannel.setMethodCallHandler(new ActivityRecognitionFlutterPlugin());
         channel.setStreamHandler(this);
     }
 
@@ -268,8 +272,9 @@ public class ActivityRecognitionFlutterPlugin implements FlutterPlugin, EventCha
         if (key != null && key.equals(DETECTED_ACTIVITY)) {
             Log.d(TAG, "Detected activity: " + result);
             try {
-                eventSink.success(result);
+                //eventSink.success(result);
                 // sendMessage(result);
+                methodChannel.invokeMethod("g_data",result);
             } catch (Exception e) {
                 Log.e(TAG, "onSharedPreferenceChanged: ", e);
             }

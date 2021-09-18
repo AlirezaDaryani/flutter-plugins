@@ -24,6 +24,8 @@ class ActivityRecognition {
 
   static const MethodChannel _channel =
       const MethodChannel('activity_recognition_flutter_ios');
+  static const MethodChannel _channelAndroid =
+      const MethodChannel('activity_recognition_flutter_android');
 
   static void startIOS() {
     _channel.invokeMethod('start');
@@ -31,6 +33,10 @@ class ActivityRecognition {
 
   static void getDataIOS(Future handler(MethodCall call)) {
     _channel.setMethodCallHandler(handler);
+  }
+
+  static void getDataAndroid(Future handler(MethodCall call)) {
+    _channelAndroid.setMethodCallHandler(handler);
   }
 
   /// Requests continuous [ActivityEvent] updates.
