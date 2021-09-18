@@ -28,21 +28,22 @@ import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.embedding.engine.plugins.activity.ActivityAware;
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
 import io.flutter.plugin.common.EventChannel;
+import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 
 /**
  * ActivityRecognitionFlutterPlugin
  */
 @SuppressLint("LongLogTag")
-public class ActivityRecognitionFlutterPlugin implements FlutterPlugin, EventChannel.StreamHandler, ActivityAware, SharedPreferences.OnSharedPreferenceChangeListener {
-    private EventChannel channel;
+public class ActivityRecognitionFlutterPlugin implements FlutterPlugin, MethodChannel.MethodCallHandler,  ActivityAware, SharedPreferences.OnSharedPreferenceChangeListener {
+    //private EventChannel channel;
     private MethodChannel methodChannel;
-    private EventChannel.EventSink eventSink;
+    //private EventChannel.EventSink eventSink;
     private Activity androidActivity;
     private Context androidContext;
     public static final String DETECTED_ACTIVITY = "detected_activity";
-    public static final String DETECTED_ACTIVITY_CURRENT = "detected_activity_current";
-    public static final String ACTIVITY_RECOGNITION = "activity_recognition_flutter";
+   // public static final String DETECTED_ACTIVITY_CURRENT = "detected_activity_current";
+   public static final String ACTIVITY_RECOGNITION = "activity_recognition_flutter";
 
     private final String TAG = "activity_recognition_flutter";
 
@@ -80,56 +81,55 @@ public class ActivityRecognitionFlutterPlugin implements FlutterPlugin, EventCha
 
     @Override
     public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
-        channel = new EventChannel(flutterPluginBinding.getBinaryMessenger(), ACTIVITY_RECOGNITION);
+        //channel = new EventChannel(flutterPluginBinding.getBinaryMessenger(), ACTIVITY_RECOGNITION);
         methodChannel = new MethodChannel(flutterPluginBinding.getBinaryMessenger(),"activity_recognition_flutter_android");
-        //methodChannel.setMethodCallHandler(new ActivityRecognitionFlutterPlugin());
-        channel.setStreamHandler(this);
+        methodChannel.setMethodCallHandler(new ActivityRecognitionFlutterPlugin());
+        //channel.setStreamHandler(this);
     }
 
     // Unchecked HashMap cast. Using instanceof does not clear the warning.
     @SuppressWarnings("unchecked")
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    @Override
-    public void onListen(Object arguments, EventChannel.EventSink events) {
-        HashMap<String, Object> args = (HashMap<String, Object>) arguments;
-        /**
-         {
-         "foreground":true,
-         "notification_title":"Some string",
-         "notification_desc":"Some string",
-         "detection_frequency":10 //in seconds
-         }
-         */
-        Log.d(TAG, "args: " + args);
-        boolean fg = false;
-        if (args.get("foreground") != null) {
-            fg = (boolean) args.get("foreground");
-        }
-        Log.d(TAG, "foreground: " + fg);
-        if (fg) {
-            String title = "MonsensoMonitor";
-            String desc = "Monsenso Foreground Service";
-            if (args.get("notification_title") != null) {
-                title = (String) args.get("notification_title");
-            }
-            if (args.get("notification_desc") != null) {
-                desc = (String) args.get("notification_desc");
-            }
+//    @RequiresApi(api = Build.VERSION_CODES.O)
+//    @Override
+//    public void onListen(Object arguments, EventChannel.EventSink events) {
+//        HashMap<String, Object> args = (HashMap<String, Object>) arguments;
+//        /**
+//         {
+//         "foreground":true,
+//         "notification_title":"Some string",
+//         "notification_desc":"Some string",
+//         "detection_frequency":10 //in seconds
+//         }
+//         */
+//        Log.d(TAG, "args: " + args);
+//        boolean fg = false;
+//        if (args.get("foreground") != null) {
+//            fg = (boolean) args.get("foreground");
+//        }
+//        Log.d(TAG, "foreground: " + fg);
+//        if (fg) {
+//            String title = "MonsensoMonitor";
+//            String desc = "Monsenso Foreground Service";
+//            if (args.get("notification_title") != null) {
+//                title = (String) args.get("notification_title");
+//            }
+//            if (args.get("notification_desc") != null) {
+//                desc = (String) args.get("notification_desc");
+//            }
+//
+//
+//            startForegroundService(title, desc);
+//        }
+//        int appFrequency = 5;
+//        if (args.get("detection_frequency") != null) {
+//            appFrequency = (int) args.get("detection_frequency");
+//        }
+//
+//
+//        eventSink = events;
+//        startActivityTracking(appFrequency);
+//    }
 
-
-            startForegroundService(title, desc);
-        }
-        int appFrequency = 5;
-        if (args.get("detection_frequency") != null) {
-            appFrequency = (int) args.get("detection_frequency");
-        }
-
-
-        eventSink = events;
-        startActivityTracking(appFrequency);
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.O)
     void startForegroundService(String notificationTitle, String notificationDescription) {
         Intent intent = new Intent(androidActivity, ForegroundService.class);
 
@@ -144,7 +144,11 @@ public class ActivityRecognitionFlutterPlugin implements FlutterPlugin, EventCha
                 .putExtra("id", 10);
 
         // Start the service
-        androidContext.startForegroundService(intent);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            androidContext.startForegroundService(intent);
+        }else {
+            androidContext.startService(intent);
+        }
     }
 
     private static Intent getLaunchIntent(Context context) {
@@ -153,10 +157,10 @@ public class ActivityRecognitionFlutterPlugin implements FlutterPlugin, EventCha
         return packageManager.getLaunchIntentForPackage(packageName);
     }
 
-    @Override
-    public void onCancel(Object arguments) {
-        channel.setStreamHandler(null);
-    }
+//    @Override
+//    public void onCancel(Object arguments) {
+//        channel.setStreamHandler(null);
+//    }
 
     /**
      * ActivityAware interface below
@@ -166,7 +170,7 @@ public class ActivityRecognitionFlutterPlugin implements FlutterPlugin, EventCha
         androidActivity = binding.getActivity();
         androidContext = binding.getActivity().getApplicationContext();
 
-        SharedPreferences prefs = androidContext.getSharedPreferences(ACTIVITY_RECOGNITION, Context.MODE_PRIVATE);
+        SharedPreferences prefs = androidContext.getSharedPreferences(ACTIVITY_RECOGNITION, Context.MODE_WORLD_READABLE);
         prefs.registerOnSharedPreferenceChangeListener(this);
         Log.d(TAG, "onAttachedToActivity");
     }
@@ -249,6 +253,46 @@ public class ActivityRecognitionFlutterPlugin implements FlutterPlugin, EventCha
 
 
     }
+    @Override
+    public void onMethodCall(@NonNull  MethodCall call, @NonNull MethodChannel.Result result) {
+        if(call.method == "start_android"){
+            HashMap<String, Object> args = (HashMap<String, Object>) call.arguments;
+            /**
+             {
+             "foreground":true,
+             "notification_title":"Some string",
+             "notification_desc":"Some string",
+             "detection_frequency":10 //in seconds
+             }
+             */
+            Log.d(TAG, "args: " + args);
+            boolean fg = false;
+            if (args.get("foreground") != null) {
+                fg = (boolean) args.get("foreground");
+            }
+            Log.d(TAG, "foreground: " + fg);
+            if (fg) {
+                String title = "MonsensoMonitor";
+                String desc = "Monsenso Foreground Service";
+                if (args.get("notification_title") != null) {
+                    title = (String) args.get("notification_title");
+                }
+                if (args.get("notification_desc") != null) {
+                    desc = (String) args.get("notification_desc");
+                }
+
+
+                startForegroundService(title, desc);
+            }
+            int appFrequency = 5;
+            if (args.get("detection_frequency") != null) {
+                appFrequency = (int) args.get("detection_frequency");
+            }
+
+
+            startActivityTracking(appFrequency);
+        }
+    }
 
 
     /**
@@ -280,4 +324,6 @@ public class ActivityRecognitionFlutterPlugin implements FlutterPlugin, EventCha
             }
         }
     }
-  }
+
+
+}

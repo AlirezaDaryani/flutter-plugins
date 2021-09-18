@@ -31,6 +31,10 @@ class ActivityRecognition {
     _channel.invokeMethod('start');
   }
 
+  static void startAndroid() {
+    _channel.invokeMethod('start_android');
+  }
+
   static void getDataIOS(Future handler(MethodCall call)) {
     _channel.setMethodCallHandler(handler);
   }
