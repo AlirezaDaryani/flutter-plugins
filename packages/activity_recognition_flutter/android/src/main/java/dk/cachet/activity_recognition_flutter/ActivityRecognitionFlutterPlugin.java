@@ -80,8 +80,8 @@ public class ActivityRecognitionFlutterPlugin implements FlutterPlugin, MethodCh
     @Override
     public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
         //channel = new EventChannel(flutterPluginBinding.getBinaryMessenger(), ACTIVITY_RECOGNITION);
-        methodChannel = new MethodChannel(flutterPluginBinding.getBinaryMessenger(),"activity_recognition_flutter_android");
-        methodChannel.setMethodCallHandler(new ActivityRecognitionFlutterPlugin());
+        methodChannel = new MethodChannel(flutterPluginBinding.getBinaryMessenger(), "activity_recognition_flutter_android");
+        methodChannel.setMethodCallHandler(this);
         //channel.setStreamHandler(this);
     }
 
