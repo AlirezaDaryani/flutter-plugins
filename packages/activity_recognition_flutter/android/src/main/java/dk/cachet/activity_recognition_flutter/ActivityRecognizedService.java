@@ -52,7 +52,7 @@ public class ActivityRecognizedService extends JobIntentService {
         // Same preferences as in ActivityRecognitionFlutterPlugin.java
         SharedPreferences preferences =
                 getApplicationContext().getSharedPreferences(
-                        ActivityRecognitionFlutterPlugin.ACTIVITY_RECOGNITION, MODE_WORLD_READABLE);
+                        ActivityRecognitionFlutterPlugin.ACTIVITY_RECOGNITION, MODE_PRIVATE);
 
         preferences.edit()
                 .putString(
