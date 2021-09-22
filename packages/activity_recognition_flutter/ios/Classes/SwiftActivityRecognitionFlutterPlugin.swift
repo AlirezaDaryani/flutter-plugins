@@ -52,21 +52,21 @@ public class SwiftActivityRecognitionFlutterPlugin: NSObject, FlutterPlugin,CLLo
         self.requestLocationAuthorization()
         self.locationManager.allowsBackgroundLocationUpdates = true
         //1
-        self.locationManager.pausesLocationUpdatesAutomatically = true
+        //self.locationManager.pausesLocationUpdatesAutomatically = true
         //TODO self.locationManager.pausesLocationUpdatesAutomatically = true
-        self.locationManager.startMonitoringVisits()
+        //self.locationManager.startMonitoringVisits()
         //8
-        //self.locationManager.startMonitoringSignificantLocationChanges()
         //2
         self.locationManager.activityType = .fitness
         //3
-        self.locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
+        //self.locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
         //6
         if #available(iOS 11.0, *) {
             self.locationManager.showsBackgroundLocationIndicator = false
         }
         
-        self.locationManager.startUpdatingLocation()
+        //self.locationManager.startUpdatingLocation()
+        self.locationManager.startMonitoringSignificantLocationChanges()
 
 
         //4
@@ -109,7 +109,7 @@ public class SwiftActivityRecognitionFlutterPlugin: NSObject, FlutterPlugin,CLLo
     
     public func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         
-        
+        //TODO we can save data in some field and sned it in update location
         activityManager.startActivityUpdates(to: OperationQueue.main) { (activity) in
             if let a = activity {
 
