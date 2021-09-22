@@ -51,22 +51,15 @@ public class SwiftActivityRecognitionFlutterPlugin: NSObject, FlutterPlugin,CLLo
         self.registerBackgroundTask()
         self.requestLocationAuthorization()
         self.locationManager.allowsBackgroundLocationUpdates = true
-        //1
-        self.locationManager.pausesLocationUpdatesAutomatically = false
-        //TODO self.locationManager.pausesLocationUpdatesAutomatically = true
-        //self.locationManager.startMonitoringVisits()
-        //8
-        //2
-        ///todo self.locationManager.activityType = .fitness
-        //3
-        //self.locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
-        //6
+
         if #available(iOS 11.0, *) {
-            self.locationManager.showsBackgroundLocationIndicator = false
+            //self.locationManager.showsBackgroundLocationIndicator = false
         }
         
         //self.locationManager.startUpdatingLocation()
         self.locationManager.startMonitoringSignificantLocationChanges()
+        self.locationManager.distanceFilter = 1
+        self.locationManager.startUpdatingLocation()
 
 
         //4
@@ -88,6 +81,8 @@ public class SwiftActivityRecognitionFlutterPlugin: NSObject, FlutterPlugin,CLLo
     
     public func requestLocationAuthorization() {
         let currentStatus = CLLocationManager.authorizationStatus()
+        self.locationManager.requestTemporaryFullAccuracyAuthorization(withPurposeKey: "This used for better detection of location changes")
+
 
         // Only ask authorization if it was never asked before
         guard currentStatus == .notDetermined else { return }
