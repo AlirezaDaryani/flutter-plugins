@@ -58,7 +58,7 @@ public class SwiftActivityRecognitionFlutterPlugin: NSObject, FlutterPlugin,CLLo
         //8
         //2
         ///todo self.locationManager.activityType = .fitness
-        ///TODO self.locationManager.allowDeferredLocationUpdates(untilTraveled: <#T##CLLocationDistance#>, timeout: <#T##TimeInterval#>)
+        self.locationManager.allowDeferredLocationUpdates(untilTraveled: 2, timeout: 60)
         //3
         //self.locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
         //6
