@@ -57,7 +57,8 @@ public class SwiftActivityRecognitionFlutterPlugin: NSObject, FlutterPlugin,CLLo
         //self.locationManager.startMonitoringVisits()
         //8
         //2
-        self.locationManager.activityType = .fitness
+        ///todo self.locationManager.activityType = .fitness
+        ///TODO self.locationManager.allowDeferredLocationUpdates(untilTraveled: <#T##CLLocationDistance#>, timeout: <#T##TimeInterval#>)
         //3
         //self.locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
         //6
@@ -110,6 +111,7 @@ public class SwiftActivityRecognitionFlutterPlugin: NSObject, FlutterPlugin,CLLo
     public func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         
         //TODO we can save data in some field and sned it in update location
+        activityManager.stopActivityUpdates()
         activityManager.startActivityUpdates(to: OperationQueue.main) { (activity) in
             if let a = activity {
 
