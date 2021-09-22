@@ -62,7 +62,9 @@ public class SwiftActivityRecognitionFlutterPlugin: NSObject, FlutterPlugin,CLLo
         //3
         self.locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
         //6
-        self.locationManager.showsBackgroundLocationIndicator = false
+        if #available(iOS 11.0, *) {
+            self.locationManager.showsBackgroundLocationIndicator = false
+        }
         
         self.locationManager.startUpdatingLocation()
 
