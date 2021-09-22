@@ -81,8 +81,10 @@ public class SwiftActivityRecognitionFlutterPlugin: NSObject, FlutterPlugin,CLLo
     
     public func requestLocationAuthorization() {
         let currentStatus = CLLocationManager.authorizationStatus()
+        if #available(iOS 14.0, *) {
         self.locationManager.requestTemporaryFullAccuracyAuthorization(withPurposeKey: "This used for better detection of location changes")
 
+        }
 
         // Only ask authorization if it was never asked before
         guard currentStatus == .notDetermined else { return }
