@@ -52,7 +52,7 @@ public class SwiftActivityRecognitionFlutterPlugin: NSObject, FlutterPlugin,CLLo
         self.requestLocationAuthorization()
         self.locationManager.allowsBackgroundLocationUpdates = true
         self.locationManager.pausesLocationUpdatesAutomatically = false
-        //todo: self.locationManager.activityType = .fitness
+        self.locationManager.activityType = .fitness
         self.locationManager.startMonitoringVisits()
         self.locationManager.startUpdatingLocation()
 
@@ -101,17 +101,17 @@ public class SwiftActivityRecognitionFlutterPlugin: NSObject, FlutterPlugin,CLLo
         self.requestLocationAuthorizationCallback?(status)
     }
     
-    public func locationManagerDidPauseLocationUpdates(_ manager: CLLocationManager) {
-        manager.startMonitoringVisits()
-        manager.startUpdatingLocation()
-
-
-    }
-    public func locationManagerDidResumeLocationUpdates(_ manager: CLLocationManager) {
-        manager.startMonitoringVisits()
-        manager.startUpdatingLocation()
-
-    }
+//    public func locationManagerDidPauseLocationUpdates(_ manager: CLLocationManager) {
+//        manager.startMonitoringVisits()
+//        manager.startUpdatingLocation()
+//
+//
+//    }
+//    public func locationManagerDidResumeLocationUpdates(_ manager: CLLocationManager) {
+//        manager.startMonitoringVisits()
+//        manager.startUpdatingLocation()
+//
+//    }
 
     
     
