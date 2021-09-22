@@ -52,7 +52,7 @@ public class SwiftActivityRecognitionFlutterPlugin: NSObject, FlutterPlugin,CLLo
         self.requestLocationAuthorization()
         self.locationManager.allowsBackgroundLocationUpdates = true
         //1
-        //self.locationManager.pausesLocationUpdatesAutomatically = true
+        self.locationManager.pausesLocationUpdatesAutomatically = false
         //TODO self.locationManager.pausesLocationUpdatesAutomatically = true
         //self.locationManager.startMonitoringVisits()
         //8
