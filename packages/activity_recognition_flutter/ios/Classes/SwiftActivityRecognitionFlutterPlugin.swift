@@ -52,10 +52,8 @@ public class SwiftActivityRecognitionFlutterPlugin: NSObject, FlutterPlugin,CLLo
         self.requestLocationAuthorization()
         self.locationManager.allowsBackgroundLocationUpdates = true
         self.locationManager.pausesLocationUpdatesAutomatically = false
-        //TODO self.locationManager.pausesLocationUpdatesAutomatically = true
         self.locationManager.startMonitoringVisits()
         self.locationManager.startMonitoringSignificantLocationChanges()
-        //self.locationManager.activityType = .automotiveNavigation
         self.locationManager.startUpdatingLocation()
 
         activityManager.startActivityUpdates(to: OperationQueue.main) { (activity) in
@@ -125,38 +123,14 @@ public class SwiftActivityRecognitionFlutterPlugin: NSObject, FlutterPlugin,CLLo
         self.locationManager.startMonitoringSignificantLocationChanges()
         self.locationManager.startUpdatingLocation()
 
-        activityManager.startActivityUpdates(to: OperationQueue.main) { (activity) in
-            if let a = activity {
 
-                let type = self.extractActivityType(a: a)
-                let confidence = self.extractActivityConfidence(a: a)
-                let data = "\(type),\(confidence)"
-
-                /// Send event to flutter
-                self.globalChannel.invokeMethod("g_data", arguments: data)
-
-                
-            }
-        }
     }
     public func locationManagerDidResumeLocationUpdates(_ manager: CLLocationManager) {
         self.locationManager.startMonitoringVisits()
         self.locationManager.startMonitoringSignificantLocationChanges()
         self.locationManager.startUpdatingLocation()
 
-        activityManager.startActivityUpdates(to: OperationQueue.main) { (activity) in
-            if let a = activity {
 
-                let type = self.extractActivityType(a: a)
-                let confidence = self.extractActivityConfidence(a: a)
-                let data = "\(type),\(confidence)"
-
-                /// Send event to flutter
-                self.globalChannel.invokeMethod("g_data", arguments: data)
-
-                
-            }
-        }
     }
 
     
