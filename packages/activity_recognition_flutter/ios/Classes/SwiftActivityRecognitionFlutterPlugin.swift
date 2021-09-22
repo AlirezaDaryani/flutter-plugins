@@ -57,8 +57,8 @@ public class SwiftActivityRecognitionFlutterPlugin: NSObject, FlutterPlugin,CLLo
         }
         
         //self.locationManager.startUpdatingLocation()
-        self.locationManager.startMonitoringSignificantLocationChanges()
-        self.locationManager.distanceFilter = 1
+        self.locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
+        self.locationManager.activityType = .fitness
         self.locationManager.startUpdatingLocation()
 
 
@@ -105,7 +105,7 @@ public class SwiftActivityRecognitionFlutterPlugin: NSObject, FlutterPlugin,CLLo
     }
     
     public func locationManagerDidPauseLocationUpdates(_ manager: CLLocationManager) {
-        self.locationManager.startMonitoringSignificantLocationChanges()
+        manager.startUpdatingLocation()
     }
     
     public func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
