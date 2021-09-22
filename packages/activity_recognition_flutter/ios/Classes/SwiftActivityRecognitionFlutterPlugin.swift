@@ -52,23 +52,10 @@ public class SwiftActivityRecognitionFlutterPlugin: NSObject, FlutterPlugin,CLLo
         self.requestLocationAuthorization()
         self.locationManager.allowsBackgroundLocationUpdates = true
         self.locationManager.pausesLocationUpdatesAutomatically = false
+        self.locationManager.distanceFilter = 50
         self.locationManager.startMonitoringVisits()
-        self.locationManager.startMonitoringSignificantLocationChanges()
         self.locationManager.startUpdatingLocation()
 
-        activityManager.startActivityUpdates(to: OperationQueue.main) { (activity) in
-            if let a = activity {
-
-                let type = self.extractActivityType(a: a)
-                let confidence = self.extractActivityConfidence(a: a)
-                let data = "\(type),\(confidence)"
-
-                /// Send event to flutter
-                self.globalChannel.invokeMethod("g_data", arguments: data)
-
-                
-            }
-        }
       }
     }
     
@@ -95,7 +82,7 @@ public class SwiftActivityRecognitionFlutterPlugin: NSObject, FlutterPlugin,CLLo
     
     public func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         
-        
+        activityManager.stopActivityUpdates()
         activityManager.startActivityUpdates(to: OperationQueue.main) { (activity) in
             if let a = activity {
 
@@ -120,14 +107,12 @@ public class SwiftActivityRecognitionFlutterPlugin: NSObject, FlutterPlugin,CLLo
     
     public func locationManagerDidPauseLocationUpdates(_ manager: CLLocationManager) {
         self.locationManager.startMonitoringVisits()
-        self.locationManager.startMonitoringSignificantLocationChanges()
         self.locationManager.startUpdatingLocation()
 
 
     }
     public func locationManagerDidResumeLocationUpdates(_ manager: CLLocationManager) {
         self.locationManager.startMonitoringVisits()
-        self.locationManager.startMonitoringSignificantLocationChanges()
         self.locationManager.startUpdatingLocation()
 
 
