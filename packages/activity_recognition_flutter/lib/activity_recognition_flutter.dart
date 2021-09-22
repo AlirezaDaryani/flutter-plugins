@@ -1,6 +1,7 @@
 library activity_recognition;
 
 import 'dart:async';
+
 import 'package:flutter/services.dart';
 
 part 'ar_domain.dart';
@@ -21,16 +22,55 @@ class ActivityRecognition {
   static const EventChannel _eventChannel =
       const EventChannel('activity_recognition_flutter');
 
+  static const MethodChannel _channel =
+      const MethodChannel('activity_recognition_flutter_ios');
+  static const MethodChannel _channelAndroid =
+      const MethodChannel('activity_recognition_flutter_android');
+
+  static void startIOS() {
+    _channel.invokeMethod('start');
+  }
+
+  static void startAndroid(
+      {bool runForegroundService = true,
+      String? notificationTitle,
+      String? notificationDescription,
+      int? detectionFrequency}) {
+    _channelAndroid.invokeMethod('start_android', {
+      "foreground": runForegroundService,
+      "notification_title": notificationTitle,
+      "notification_desc": notificationDescription,
+      "detection_frequency": detectionFrequency
+    });
+  }
+
+  static void getDataIOS(Future handler(MethodCall call)) {
+    _channel.setMethodCallHandler(handler);
+  }
+
+  static void getDataAndroid(Future handler(MethodCall call)) {
+    _channelAndroid.setMethodCallHandler(handler);
+  }
+
   /// Requests continuous [ActivityEvent] updates.
   ///
   /// The Stream will output the *most probable* [ActivityEvent].
   /// By default the foreground service is enabled, which allows the
   /// updates to be streamed while the app runs in the background.
   /// The programmer can choose to not enable to foreground service.
-  Stream<ActivityEvent> startStream({bool runForegroundService = true}) {
+  /// [notificationTitle] let you change notification foreground title, default is "MonsensoMonitor" ;(Just for ANDROID)
+  /// [notificationDescription] let you change notification foreground description, default is "Monsenso Foreground Service" ;(Just for ANDROID)
+  /// [detectionFrequency] let you change frequency of detections of activities in seconds, default is 5 ;(Just for ANDROID for now)
+  Stream<ActivityEvent> startStream(
+      {bool runForegroundService = true, String? notificationTitle, String? notificationDescription, int? detectionFrequency}) {
     if (_stream == null) {
       _stream = _eventChannel
-          .receiveBroadcastStream({"foreground": runForegroundService}).map(
+          .receiveBroadcastStream({
+        "foreground": runForegroundService,
+        "notification_title": notificationTitle,
+        "notification_desc": notificationDescription,
+        "detection_frequency": detectionFrequency
+      }).map(
               (json) => ActivityEvent.fromJson(json));
     }
     return _stream!;

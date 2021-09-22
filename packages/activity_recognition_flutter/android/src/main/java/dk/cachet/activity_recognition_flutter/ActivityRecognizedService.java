@@ -1,6 +1,5 @@
 package dk.cachet.activity_recognition_flutter;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -46,7 +45,7 @@ public class ActivityRecognizedService extends JobIntentService {
         String type = getActivityString(mostLikely.getType());
         int confidence = mostLikely.getConfidence();
 
-        String data = type + "," + confidence;
+        String data = type + "," + "100";
 
         Log.d("onHandleIntent", data);
 
@@ -55,7 +54,7 @@ public class ActivityRecognizedService extends JobIntentService {
                 getApplicationContext().getSharedPreferences(
                         ActivityRecognitionFlutterPlugin.ACTIVITY_RECOGNITION, MODE_PRIVATE);
 
-        preferences.edit().clear()
+        preferences.edit()
                 .putString(
                         ActivityRecognitionFlutterPlugin.DETECTED_ACTIVITY,
                         data

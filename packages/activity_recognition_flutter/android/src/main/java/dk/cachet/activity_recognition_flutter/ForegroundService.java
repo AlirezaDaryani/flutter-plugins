@@ -1,14 +1,16 @@
 package dk.cachet.activity_recognition_flutter;
 
-import android.content.Intent;
-import android.content.Context;
-import android.app.Service;
+import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.os.IBinder;
+import android.app.PendingIntent;
+import android.app.Service;
+import android.app.TaskStackBuilder;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
-import android.annotation.TargetApi;
+import android.os.IBinder;
 
 public class ForegroundService extends Service {
 
@@ -16,34 +18,52 @@ public class ForegroundService extends Service {
         super();
     }
 
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        Bundle bundle = new Bundle();
-        bundle.putString("title", "Foreground service");
-        bundle.putString("text", "Foreground monitoring service");
-        startPluginForegroundService(bundle);
-    }
+    Bundle bundle = new Bundle();
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        //get bundle of main intent of start action
+        if (intent.getExtras() == null) {
+            if (bundle.get("title") == null) {
+                bundle.putAll(new Intent().putExtra("title", "MonsensoMonitor")
+                        .putExtra("text", "Monsenso Foreground Service")
+                        .putExtra("icon", R.drawable.common_full_open_on_phone)
+                        .putExtra("importance", 3)
+                        .putExtra("id", 10).getExtras());
+            }
+        } else {
+            bundle = intent.getExtras();
+        }
+        startPluginForegroundService(bundle);
         return START_STICKY;
+    }
+
+    /**
+     * method for get main class for pending intent
+     */
+    private Class getMainActivityClass(Context context) {
+        String packageName = context.getPackageName();
+        Intent launchIntent = context.getPackageManager().getLaunchIntentForPackage(packageName);
+        String className = launchIntent.getComponent().getClassName();
+        try {
+            return Class.forName(className);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     @TargetApi(26)
     private void startPluginForegroundService(Bundle extras) {
         Context context = getApplicationContext();
 
-        // Delete notification channel if it already exists
-        NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        manager.deleteNotificationChannel("foreground.service.channel");
 
         // Get notification channel importance
         Integer importance;
 
         try {
-            importance = Integer.parseInt((String) extras.get("importance"));
-        } catch (NumberFormatException e) {
+            importance = (Integer) extras.get("importance");
+        } catch (Exception e) {
             importance = 1;
         }
 
@@ -60,27 +80,35 @@ public class ForegroundService extends Service {
         }
 
         // Create notification channel
-        NotificationChannel channel = new NotificationChannel("foreground.service.channel", "Background Services", importance);
-        channel.setDescription("Enables background processing.");
+        NotificationChannel channel = new NotificationChannel("notipark_service_channel", "NotiPark Service", importance);
+        channel.setDescription("NotiPark Reminders.");
         getSystemService(NotificationManager.class).createNotificationChannel(channel);
 
         // Get notification icon
 //        int icon = getResources().getIdentifier((String) extras.get("icon"), "drawable", context.getPackageName());
         int icon = R.drawable.common_full_open_on_phone;
-        
+        /**
+         * create pending intent for open app with click on foreground notification
+         */
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+        stackBuilder.addNextIntent(new Intent(this, this.getPackageName().getClass()));
+        Intent resultIntent = new Intent(this, getMainActivityClass(this));
+        PendingIntent pendingIntentC = PendingIntent.getActivity(this, 66, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         // Make notification
-        Notification notification = new Notification.Builder(context, "foreground.service.channel")
+        Notification notification = new Notification.Builder(context, "notipark_service_channel")
                 .setContentTitle((CharSequence) extras.get("title"))
                 .setContentText((CharSequence) extras.get("text"))
                 .setOngoing(true)
-                .setSmallIcon(icon == 0 ? 17301514 : icon) // Default is the star icon
+                .setContentIntent(pendingIntentC)
+                .setOnlyAlertOnce(true)
+                .setSmallIcon(icon) // Default is the star icon
                 .build();
 
         // Get notification ID
         Integer id;
         try {
-            id = Integer.parseInt((String) extras.get("id"));
-        } catch (NumberFormatException e) {
+            id = (Integer) extras.get("id");
+        } catch (Exception e) {
             id = 0;
         }
 
