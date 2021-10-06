@@ -51,9 +51,9 @@ public class SwiftActivityRecognitionFlutterPlugin: NSObject, FlutterPlugin,CLLo
         self.registerBackgroundTask()
         self.requestLocationAuthorization()
         self.locationManager.allowsBackgroundLocationUpdates = true
-        self.locationManager.pausesLocationUpdatesAutomatically = false
+        //self.locationManager.pausesLocationUpdatesAutomatically = false
         self.locationManager.distanceFilter = 40
-        self.locationManager.startMonitoringVisits()
+        //self.locationManager.startMonitoringVisits()
         self.locationManager.startUpdatingLocation()
 
       }
@@ -105,18 +105,17 @@ public class SwiftActivityRecognitionFlutterPlugin: NSObject, FlutterPlugin,CLLo
         self.requestLocationAuthorizationCallback?(status)
     }
     
-    public func locationManagerDidPauseLocationUpdates(_ manager: CLLocationManager) {
-        self.locationManager.startMonitoringVisits()
-        self.locationManager.startUpdatingLocation()
-
-
-    }
-    public func locationManagerDidResumeLocationUpdates(_ manager: CLLocationManager) {
-        self.locationManager.startMonitoringVisits()
-        self.locationManager.startUpdatingLocation()
-
-
-    }
+//    public func locationManagerDidPauseLocationUpdates(_ manager: CLLocationManager) {
+//        self.locationManager.startMonitoringVisits()
+//        self.locationManager.startUpdatingLocation()
+//
+//
+//    }
+//    public func locationManagerDidResumeLocationUpdates(_ manager: CLLocationManager) {
+//        self.locationManager.startMonitoringVisits()
+//        self.locationManager.startUpdatingLocation()
+//
+//    }
 
     
     
