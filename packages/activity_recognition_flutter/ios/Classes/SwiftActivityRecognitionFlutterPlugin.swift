@@ -8,27 +8,28 @@ public class SwiftActivityRecognitionFlutterPlugin: NSObject, FlutterPlugin,CLLo
 
     public var globalChannel:FlutterMethodChannel
     private let activityManager = CMMotionActivityManager()
-    let locationManager = CLLocationManager()
+    var locationManager: CLLocationManager
+
 
     private var requestLocationAuthorizationCallback: ((CLAuthorizationStatus) -> Void)?
 
     var backgroundTask: UIBackgroundTaskIdentifier = .invalid
 
-   func registerBackgroundTask() {
-     backgroundTask = UIApplication.shared.beginBackgroundTask { [weak self] in
-       self?.endBackgroundTask()
-     }
-     assert(backgroundTask != .invalid)
-   }
-     
-   func endBackgroundTask() {
-     UIApplication.shared.endBackgroundTask(backgroundTask)
-     backgroundTask = .invalid
-   }
+//   func registerBackgroundTask() {
+//     backgroundTask = UIApplication.shared.beginBackgroundTask { [weak self] in
+//       self?.endBackgroundTask()
+//     }
+//     assert(backgroundTask != .invalid)
+//   }
+//
+//   func endBackgroundTask() {
+//     UIApplication.shared.endBackgroundTask(backgroundTask)
+//     backgroundTask = .invalid
+//   }
     
     init(channel:FlutterMethodChannel) {
         self.globalChannel = channel
-        
+        self.locationManager = CLLocationManager()
 
     }
     
@@ -48,12 +49,13 @@ public class SwiftActivityRecognitionFlutterPlugin: NSObject, FlutterPlugin,CLLo
           result("iOS " + UIDevice.current.systemVersion)
       }else if (call.method == "start"){
         self.locationManager.delegate = self
-        self.registerBackgroundTask()
+        //self.registerBackgroundTask()
         self.requestLocationAuthorization()
         self.locationManager.allowsBackgroundLocationUpdates = true
-        //self.locationManager.pausesLocationUpdatesAutomatically = false
+        self.locationManager.pausesLocationUpdatesAutomatically = false
         self.locationManager.distanceFilter = 40
-        //self.locationManager.startMonitoringVisits()
+        self.locationManager.desiredAccuracy = kCLLocationAccuracyBest
+        self.locationManager.startMonitoringSignificantLocationChanges()
         self.locationManager.startUpdatingLocation()
 
       }
@@ -72,6 +74,7 @@ public class SwiftActivityRecognitionFlutterPlugin: NSObject, FlutterPlugin,CLLo
             self.requestLocationAuthorizationCallback = { status in
                 if status == .authorizedWhenInUse {
                     self.locationManager.requestAlwaysAuthorization()
+                    self.locationManager.startUpdatingLocation()
                 }
             }
             self.locationManager.requestWhenInUseAuthorization()
