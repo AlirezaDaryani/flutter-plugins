@@ -27,8 +27,8 @@ class ActivityRecognition {
   static const MethodChannel _channelAndroid =
       const MethodChannel('activity_recognition_flutter_android');
 
-  static void startIOS() {
-    _channel.invokeMethod('start');
+  static Future<String> startIOS() async {
+    return await _channel.invokeMethod('start');
   }
 
   static void startAndroid(

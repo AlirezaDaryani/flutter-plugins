@@ -13,7 +13,7 @@ public class SwiftActivityRecognitionFlutterPlugin: NSObject, FlutterPlugin,CLLo
 
     private var requestLocationAuthorizationCallback: ((CLAuthorizationStatus) -> Void)?
 
-
+    private var result:FlutterResult?
     
     init(channel:FlutterMethodChannel) {
         self.globalChannel = channel
@@ -36,6 +36,7 @@ public class SwiftActivityRecognitionFlutterPlugin: NSObject, FlutterPlugin,CLLo
       }else if (call.method == "start"){
         self.locationManager.delegate = self
         self.requestLocationAuthorization()
+          self.result = result
       }
     }
     
@@ -53,6 +54,9 @@ public class SwiftActivityRecognitionFlutterPlugin: NSObject, FlutterPlugin,CLLo
                 if status == .authorizedWhenInUse {
                     self.locationManager.requestAlwaysAuthorization()
                 }else if status == .authorizedAlways {
+                    if(self.result != nil){
+                        self.result!("done")
+                    }
                     self.getActivity()
                 }
             }
