@@ -36,7 +36,9 @@ public class SwiftActivityRecognitionFlutterPlugin: NSObject, FlutterPlugin,CLLo
       }else if (call.method == "start"){
         self.locationManager.delegate = self
         self.requestLocationAuthorization()
-          self.result = result
+        self.result = result
+        self.getActivity()
+
       }
     }
     
