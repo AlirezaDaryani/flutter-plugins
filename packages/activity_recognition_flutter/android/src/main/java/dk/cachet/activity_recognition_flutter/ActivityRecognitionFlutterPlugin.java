@@ -44,7 +44,6 @@ public class ActivityRecognitionFlutterPlugin implements FlutterPlugin, MethodCh
    public static final String ACTIVITY_RECOGNITION = "activity_recognition_flutter";
 
     private final String TAG = "activity_recognition_flutter";
-    private final String TAG2 = "ALIREZA";
 
     /**
      * The main function for starting activity tracking.
@@ -80,54 +79,11 @@ public class ActivityRecognitionFlutterPlugin implements FlutterPlugin, MethodCh
 
     @Override
     public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
-        //channel = new EventChannel(flutterPluginBinding.getBinaryMessenger(), ACTIVITY_RECOGNITION);
         methodChannel = new MethodChannel(flutterPluginBinding.getBinaryMessenger(), "activity_recognition_flutter_android");
         methodChannel.setMethodCallHandler(this);
-        //channel.setStreamHandler(this);
     }
 
-    // Unchecked HashMap cast. Using instanceof does not clear the warning.
-    @SuppressWarnings("unchecked")
-//    @RequiresApi(api = Build.VERSION_CODES.O)
-//    @Override
-//    public void onListen(Object arguments, EventChannel.EventSink events) {
-//        HashMap<String, Object> args = (HashMap<String, Object>) arguments;
-//        /**
-//         {
-//         "foreground":true,
-//         "notification_title":"Some string",
-//         "notification_desc":"Some string",
-//         "detection_frequency":10 //in seconds
-//         }
-//         */
-//        Log.d(TAG, "args: " + args);
-//        boolean fg = false;
-//        if (args.get("foreground") != null) {
-//            fg = (boolean) args.get("foreground");
-//        }
-//        Log.d(TAG, "foreground: " + fg);
-//        if (fg) {
-//            String title = "MonsensoMonitor";
-//            String desc = "Monsenso Foreground Service";
-//            if (args.get("notification_title") != null) {
-//                title = (String) args.get("notification_title");
-//            }
-//            if (args.get("notification_desc") != null) {
-//                desc = (String) args.get("notification_desc");
-//            }
-//
-//
-//            startForegroundService(title, desc);
-//        }
-//        int appFrequency = 5;
-//        if (args.get("detection_frequency") != null) {
-//            appFrequency = (int) args.get("detection_frequency");
-//        }
-//
-//
-//        eventSink = events;
-//        startActivityTracking(appFrequency);
-//    }
+
 
     void startForegroundService(String notificationTitle, String notificationDescription) {
         Intent intent = new Intent(androidActivity, ForegroundService.class);
@@ -156,10 +112,7 @@ public class ActivityRecognitionFlutterPlugin implements FlutterPlugin, MethodCh
         return packageManager.getLaunchIntentForPackage(packageName);
     }
 
-//    @Override
-//    public void onCancel(Object arguments) {
-//        channel.setStreamHandler(null);
-//    }
+
 
     /**
      * ActivityAware interface below
@@ -176,7 +129,6 @@ public class ActivityRecognitionFlutterPlugin implements FlutterPlugin, MethodCh
 
     @Override
     public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
-        //channel.setStreamHandler(null);
     }
 
     @Override
@@ -188,27 +140,24 @@ public class ActivityRecognitionFlutterPlugin implements FlutterPlugin, MethodCh
 
     @Override
     public void onDetachedFromActivityForConfigChanges() {
-        //androidActivity = null;
-        //androidContext = null;
+
     }
 
     @Override
     public void onDetachedFromActivity() {
-        //androidActivity = null;
-        //androidContext = null;
+
     }
 
     private void createNotificationChannel() {
-        // Create the NotificationChannel, but only on API 26+ because
-        // the NotificationChannel class is new and not in the support library
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             CharSequence name = "NotiPark";
             String description = "NotiPark Reminders";
             int importance = NotificationManager.IMPORTANCE_HIGH;
             NotificationChannel channel = new NotificationChannel("notipark_channel", name, importance);
             channel.setDescription(description);
-            // Register the channel with the system; you can't change the importance
-            // or other notification behaviors after this
+
+
             NotificationManager notificationManager = androidContext.getSystemService(NotificationManager.class);
             notificationManager.createNotificationChannel(channel);
         }
@@ -239,19 +188,7 @@ public class ActivityRecognitionFlutterPlugin implements FlutterPlugin, MethodCh
 
     }
 
-    void sendMessage(String data) {
-        String[] tokens = data.split(",");
-        //todo now work for walk and stop
-        if (tokens.length == 2) {
-            if (tokens[0].equals("STILL")) {
-                notifyNotification(true);
-            } else if (tokens[0].equals("IN_VEHICLE")) {
-                notifyNotification(false);
-            }
-        }
 
-
-    }
     @Override
     public void onMethodCall(@NonNull  MethodCall call, @NonNull MethodChannel.Result result) {
         if (call.method.equals("start_android")) {
@@ -266,7 +203,6 @@ public class ActivityRecognitionFlutterPlugin implements FlutterPlugin, MethodCh
              "detection_frequency":10 //in seconds
              }
              */
-            Log.e(TAG2, "args: " + args);
             Log.d(TAG, "args: " + args);
             boolean fg = false;
             if (args.get("foreground") != null) {
@@ -286,7 +222,7 @@ public class ActivityRecognitionFlutterPlugin implements FlutterPlugin, MethodCh
 
                 startForegroundService(title, desc);
             }
-            int appFrequency = 5;
+            int appFrequency = 40;
             if (args.get("detection_frequency") != null) {
                 appFrequency = (int) args.get("detection_frequency");
             }

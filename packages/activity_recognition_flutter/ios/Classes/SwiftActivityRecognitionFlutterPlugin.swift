@@ -8,29 +8,15 @@ public class SwiftActivityRecognitionFlutterPlugin: NSObject, FlutterPlugin,CLLo
 
     public var globalChannel:FlutterMethodChannel
     private let activityManager = CMMotionActivityManager()
-    var locationManager: CLLocationManager
+    let locationManager = CLLocationManager()
 
 
     private var requestLocationAuthorizationCallback: ((CLAuthorizationStatus) -> Void)?
 
-    var backgroundTask: UIBackgroundTaskIdentifier = .invalid
 
-//   func registerBackgroundTask() {
-//     backgroundTask = UIApplication.shared.beginBackgroundTask { [weak self] in
-//       self?.endBackgroundTask()
-//     }
-//     assert(backgroundTask != .invalid)
-//   }
-//
-//   func endBackgroundTask() {
-//     UIApplication.shared.endBackgroundTask(backgroundTask)
-//     backgroundTask = .invalid
-//   }
     
     init(channel:FlutterMethodChannel) {
         self.globalChannel = channel
-        self.locationManager = CLLocationManager()
-
     }
     
 
@@ -49,15 +35,7 @@ public class SwiftActivityRecognitionFlutterPlugin: NSObject, FlutterPlugin,CLLo
           result("iOS " + UIDevice.current.systemVersion)
       }else if (call.method == "start"){
         self.locationManager.delegate = self
-        //self.registerBackgroundTask()
         self.requestLocationAuthorization()
-        self.locationManager.allowsBackgroundLocationUpdates = true
-        self.locationManager.pausesLocationUpdatesAutomatically = false
-        self.locationManager.distanceFilter = 40
-        self.locationManager.desiredAccuracy = kCLLocationAccuracyBest
-        self.locationManager.startMonitoringSignificantLocationChanges()
-        self.locationManager.startUpdatingLocation()
-
       }
     }
     
@@ -74,7 +52,8 @@ public class SwiftActivityRecognitionFlutterPlugin: NSObject, FlutterPlugin,CLLo
             self.requestLocationAuthorizationCallback = { status in
                 if status == .authorizedWhenInUse {
                     self.locationManager.requestAlwaysAuthorization()
-                    self.locationManager.startUpdatingLocation()
+                }else if status == .authorizedAlways {
+                    self.getActivity()
                 }
             }
             self.locationManager.requestWhenInUseAuthorization()
@@ -83,7 +62,7 @@ public class SwiftActivityRecognitionFlutterPlugin: NSObject, FlutterPlugin,CLLo
         }
     }
     
-    public func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+    public func getActivity(){
         
         activityManager.stopActivityUpdates()
         activityManager.startActivityUpdates(to: OperationQueue.main) { (activity) in
@@ -100,6 +79,7 @@ public class SwiftActivityRecognitionFlutterPlugin: NSObject, FlutterPlugin,CLLo
             }
         }
     }
+
     
     
     // MARK: - CLLocationManagerDelegate
@@ -108,20 +88,7 @@ public class SwiftActivityRecognitionFlutterPlugin: NSObject, FlutterPlugin,CLLo
         self.requestLocationAuthorizationCallback?(status)
     }
     
-//    public func locationManagerDidPauseLocationUpdates(_ manager: CLLocationManager) {
-//        self.locationManager.startMonitoringVisits()
-//        self.locationManager.startUpdatingLocation()
-//
-//
-//    }
-//    public func locationManagerDidResumeLocationUpdates(_ manager: CLLocationManager) {
-//        self.locationManager.startMonitoringVisits()
-//        self.locationManager.startUpdatingLocation()
-//
-//    }
 
-    
-    
     
     func extractActivityType(a: CMMotionActivity) -> String {
       var type = "UNKNOWN"
