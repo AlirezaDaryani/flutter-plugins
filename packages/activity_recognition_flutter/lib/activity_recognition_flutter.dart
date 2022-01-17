@@ -40,4 +40,8 @@ class ActivityRecognition {
       "detection_frequency": detectionFrequency
     });
   }
+
+  static void stopAndroid() {
+    _channelAndroid.invokeMethod('stop_android');
+  }
 }
