@@ -25,8 +25,8 @@ public class ForegroundService extends Service {
         //get bundle of main intent of start action
         if (intent.getExtras() == null) {
             if (bundle.get("title") == null) {
-                bundle.putAll(new Intent().putExtra("title", "MonsensoMonitor")
-                        .putExtra("text", "Monsenso Foreground Service")
+                bundle.putAll(new Intent().putExtra("title", "Driving Detection")
+                        .putExtra("text", "Driving Detection Service")
                         .putExtra("icon", R.drawable.common_full_open_on_phone)
                         .putExtra("importance", 3)
                         .putExtra("id", 10).getExtras());
