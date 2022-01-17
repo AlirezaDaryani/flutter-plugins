@@ -28,26 +28,16 @@ class ActivityRecognition {
     _channelAndroid.setMethodCallHandler(handler);
   }
 
-  /// Requests continuous [ActivityEvent] updates.
-  ///
-  /// The Stream will output the *most probable* [ActivityEvent].
-  /// By default the foreground service is enabled, which allows the
-  /// updates to be streamed while the app runs in the background.
-  /// The programmer can choose to not enable to foreground service.
-  Stream<ActivityEvent> activityStream(
+  static void startAndroid(
       {bool runForegroundService = true,
       String? notificationTitle,
       String? notificationDescription,
       int? detectionFrequency}) {
-    if (_stream == null) {
-      _stream = _eventChannel.receiveBroadcastStream({
-        "foreground": runForegroundService,
-        "notification_title": notificationTitle,
-        "notification_desc": notificationDescription,
-        "detection_frequency": detectionFrequency
-      }).map(
-              (json) => ActivityEvent.fromString(json));
-    }
-    return _stream!;
+    _channelAndroid.invokeMethod('start_android', {
+      "foreground": runForegroundService,
+      "notification_title": notificationTitle,
+      "notification_desc": notificationDescription,
+      "detection_frequency": detectionFrequency
+    });
   }
 }
