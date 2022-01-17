@@ -10,7 +10,6 @@ import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 
 import com.google.android.gms.location.ActivityRecognition;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -22,21 +21,20 @@ import java.util.HashMap;
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.embedding.engine.plugins.activity.ActivityAware;
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
-import io.flutter.plugin.common.EventChannel;
+import io.flutter.plugin.common.MethodCall;
+import io.flutter.plugin.common.MethodChannel;
 
 /**
  * ActivityRecognitionFlutterPlugin
  */
 @SuppressLint("LongLogTag")
-public class ActivityRecognitionFlutterPlugin implements FlutterPlugin, EventChannel.StreamHandler, ActivityAware, SharedPreferences.OnSharedPreferenceChangeListener {
-    private EventChannel channel;
-    private EventChannel.EventSink eventSink;
-    private Activity androidActivity;
-    private Context androidContext;
+public class ActivityRecognitionFlutterPlugin implements FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware, SharedPreferences.OnSharedPreferenceChangeListener {
     public static final String DETECTED_ACTIVITY = "detected_activity";
     public static final String ACTIVITY_RECOGNITION = "activity_recognition_flutter";
-
     private final String TAG = "activity_recognition_flutter";
+    private Activity androidActivity;
+    private Context androidContext;
+    private MethodChannel methodChannel;
 
     /**
      * The main function for starting activity tracking.
@@ -78,50 +76,90 @@ public class ActivityRecognitionFlutterPlugin implements FlutterPlugin, EventCha
 
     @Override
     public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
-        channel = new EventChannel(flutterPluginBinding.getBinaryMessenger(), ACTIVITY_RECOGNITION);
-        channel.setStreamHandler(this);
+        methodChannel = new MethodChannel(flutterPluginBinding.getBinaryMessenger(), "activity_recognition_flutter_android");
+        methodChannel.setMethodCallHandler(this);
     }
 
-    // Unchecked HashMap cast. Using instanceof does not clear the warning.
-    @SuppressWarnings("unchecked")
-    @RequiresApi(api = Build.VERSION_CODES.O)
+//    // Unchecked HashMap cast. Using instanceof does not clear the warning.
+//    @SuppressWarnings("unchecked")
+//    @RequiresApi(api = Build.VERSION_CODES.O)
+//    @Override
+//    public void onListen(Object arguments, EventChannel.EventSink events) {
+//        HashMap<String, Object> args = (HashMap<String, Object>) arguments;
+//        /**
+//         {
+//         "foreground":true,
+//         "notification_title":"Some string",
+//         "notification_desc":"Some string",
+//         "detection_frequency":10 //in seconds
+//         }
+//         */
+//        Log.d(TAG, "args: " + args);
+//
+//        String title = "Driving Detection";
+//        String desc = "Driving Detection Service";
+//        if (args.get("notification_title") != null) {
+//            title = (String) args.get("notification_title");
+//        }
+//        if (args.get("notification_desc") != null) {
+//            desc = (String) args.get("notification_desc");
+//        }
+//
+//
+//        startForegroundService(title, desc);
+//
+//        int appFrequency = 30;
+//        if (args.get("detection_frequency") != null) {
+//            appFrequency = (int) args.get("detection_frequency");
+//        }
+//        startForegroundService(title, desc);
+//
+//
+//        startActivityTracking(appFrequency);
+//    }
+
+
     @Override
-    public void onListen(Object arguments, EventChannel.EventSink events) {
-        HashMap<String, Object> args = (HashMap<String, Object>) arguments;
-        /**
-         {
-         "foreground":true,
-         "notification_title":"Some string",
-         "notification_desc":"Some string",
-         "detection_frequency":10 //in seconds
-         }
-         */
-        Log.d(TAG, "args: " + args);
+    public void onMethodCall(@NonNull MethodCall call, @NonNull MethodChannel.Result result) {
+        if (call.method.equals("start_android")) {
+            HashMap<String, Object> args = (HashMap<String, Object>) call.arguments;
+            /**
+             {
+             "foreground":true,
+             "notification_title":"Some string",
+             "notification_desc":"Some string",
+             "detection_frequency":10 //in seconds
+             }
+             */
+            Log.d(TAG, "args: " + args);
 
-        String title = "Driving Detection";
-        String desc = "Driving Detection Service";
-        if (args.get("notification_title") != null) {
-            title = (String) args.get("notification_title");
+            String title = "Driving Detection";
+            String desc = "Driving Detection Service";
+            if (args.get("notification_title") != null) {
+                title = (String) args.get("notification_title");
+            }
+            if (args.get("notification_desc") != null) {
+                desc = (String) args.get("notification_desc");
+            }
+
+
+            int appFrequency = 30;
+            if (args.get("detection_frequency") != null) {
+                appFrequency = (int) args.get("detection_frequency");
+            }
+            startForegroundService(title, desc);
+            startActivityTracking(appFrequency);
+            result.success(true);
+        } else if (call.method.equals("stop_android")) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                androidContext.startForegroundService(new Intent(androidContext, ForegroundService.class));
+            } else {
+                androidContext.stopService(new Intent(androidContext, ForegroundService.class));
+            }
         }
-        if (args.get("notification_desc") != null) {
-            desc = (String) args.get("notification_desc");
-        }
-
-
-        startForegroundService(title, desc);
-
-        int appFrequency = 30;
-        if (args.get("detection_frequency") != null) {
-            appFrequency = (int) args.get("detection_frequency");
-        }
-        startForegroundService(title, desc);
-
-
-        eventSink = events;
-        startActivityTracking(appFrequency);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
+
     void startForegroundService(String notificationTitle, String notificationDescription) {
         Intent intent = new Intent(androidActivity, ForegroundService.class);
 
@@ -136,18 +174,17 @@ public class ActivityRecognitionFlutterPlugin implements FlutterPlugin, EventCha
                 .putExtra("id", 10);
 
         // Start the service
-        androidContext.startForegroundService(intent);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            androidContext.startForegroundService(intent);
+        } else {
+            androidContext.startService(intent);
+        }
     }
 
     @Override
     public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
-        channel.setStreamHandler(null);
     }
 
-    @Override
-    public void onCancel(Object arguments) {
-        channel.setStreamHandler(null);
-    }
 
     /**
      * ActivityAware interface below
@@ -159,7 +196,6 @@ public class ActivityRecognitionFlutterPlugin implements FlutterPlugin, EventCha
 
         SharedPreferences prefs = androidContext.getSharedPreferences(ACTIVITY_RECOGNITION, Context.MODE_PRIVATE);
         prefs.registerOnSharedPreferenceChangeListener(this);
-        // Log.d(TAG, "onAttachedToActivity");
     }
 
     @Override
@@ -189,9 +225,11 @@ public class ActivityRecognitionFlutterPlugin implements FlutterPlugin, EventCha
         String result = sharedPreferences
                 .getString(DETECTED_ACTIVITY, "error");
         // Log.d("onSharedPreferenceChange", result);
-        if (key!= null && key.equals(DETECTED_ACTIVITY)) {
+        if (key != null && key.equals(DETECTED_ACTIVITY)) {
             // Log.d(TAG, "Detected activity: " + result);
-            eventSink.success(result);
+            methodChannel.invokeMethod("g_data", result);
         }
     }
-  }
+
+
+}
