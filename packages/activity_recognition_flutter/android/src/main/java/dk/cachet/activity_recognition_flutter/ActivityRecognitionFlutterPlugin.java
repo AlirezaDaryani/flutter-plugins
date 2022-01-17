@@ -80,43 +80,6 @@ public class ActivityRecognitionFlutterPlugin implements FlutterPlugin, MethodCh
         methodChannel.setMethodCallHandler(this);
     }
 
-//    // Unchecked HashMap cast. Using instanceof does not clear the warning.
-//    @SuppressWarnings("unchecked")
-//    @RequiresApi(api = Build.VERSION_CODES.O)
-//    @Override
-//    public void onListen(Object arguments, EventChannel.EventSink events) {
-//        HashMap<String, Object> args = (HashMap<String, Object>) arguments;
-//        /**
-//         {
-//         "foreground":true,
-//         "notification_title":"Some string",
-//         "notification_desc":"Some string",
-//         "detection_frequency":10 //in seconds
-//         }
-//         */
-//        Log.d(TAG, "args: " + args);
-//
-//        String title = "Driving Detection";
-//        String desc = "Driving Detection Service";
-//        if (args.get("notification_title") != null) {
-//            title = (String) args.get("notification_title");
-//        }
-//        if (args.get("notification_desc") != null) {
-//            desc = (String) args.get("notification_desc");
-//        }
-//
-//
-//        startForegroundService(title, desc);
-//
-//        int appFrequency = 30;
-//        if (args.get("detection_frequency") != null) {
-//            appFrequency = (int) args.get("detection_frequency");
-//        }
-//        startForegroundService(title, desc);
-//
-//
-//        startActivityTracking(appFrequency);
-//    }
 
 
     @Override
@@ -151,11 +114,9 @@ public class ActivityRecognitionFlutterPlugin implements FlutterPlugin, MethodCh
             startActivityTracking(appFrequency);
             result.success(true);
         } else if (call.method.equals("stop_android")) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                androidContext.startForegroundService(new Intent(androidContext, ForegroundService.class));
-            } else {
-                androidContext.stopService(new Intent(androidContext, ForegroundService.class));
-            }
+
+            androidContext.stopService(new Intent(androidContext, ForegroundService.class));
+
         }
     }
 
@@ -200,8 +161,7 @@ public class ActivityRecognitionFlutterPlugin implements FlutterPlugin, MethodCh
 
     @Override
     public void onDetachedFromActivityForConfigChanges() {
-        androidActivity = null;
-        androidContext = null;
+
     }
 
     @Override
@@ -213,8 +173,7 @@ public class ActivityRecognitionFlutterPlugin implements FlutterPlugin, MethodCh
 
     @Override
     public void onDetachedFromActivity() {
-        androidActivity = null;
-        androidContext = null;
+
     }
 
     /**
