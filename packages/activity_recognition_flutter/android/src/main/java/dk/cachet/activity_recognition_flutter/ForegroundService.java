@@ -95,13 +95,18 @@ public class ForegroundService extends Service {
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
         stackBuilder.addNextIntent(new Intent(this, this.getPackageName().getClass()));
         Intent resultIntent = new Intent(this, getMainActivityClass(this));
-        PendingIntent pendingIntentC = PendingIntent.getActivity(this, 66, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntent = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+            pendingIntent = PendingIntent.getActivity(this, 66, resultIntent, PendingIntent.FLAG_IMMUTABLE);
+        } else {
+            pendingIntent = PendingIntent.getActivity(this, 66, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        }
         // Make notification
         Notification notification = new Notification.Builder(context, "notipark_service_channel")
                 .setContentTitle((CharSequence) extras.get("title"))
                 .setContentText((CharSequence) extras.get("text"))
                 .setOngoing(true)
-                .setContentIntent(pendingIntentC)
+                .setContentIntent(pendingIntent)
                 .setOnlyAlertOnce(true)
                 .setSmallIcon(icon) // Default is the star icon
                 .build();
